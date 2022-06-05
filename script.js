@@ -3,9 +3,14 @@
 const imageContainer = document.getElementById('image-container');
 const loader = document.getElementById('loader');
 let photosArray = []
-const count = 2;
-const apiKey = "zj7UwBJ4nJAYLr4FbhqStDe9nB_WGJf6Nd1jJKxMr8E";
+const count = 30;
+const apiKey = "PqeaVFmwuCmMtZ6psljzLR12_1offmr-9s-MVbIoA9c";
 const apiUrl = `https://api.unsplash.com/photos/random?client_id=${apiKey}&count=${count}`;
+
+let ready = false;
+let imagesLoadedCount = 0;
+let totalImages = 0;
+
 
 
 // Helper function
@@ -15,7 +20,19 @@ function setAttributes(element, attributes) {
     }
 }
 
+function imagesLoaded() {
+    imagesLoadedCount++;
+    if (imagesLoadedCount === totalImages) {
+        ready = true;
+        loader.hidden = true
+    }
+}
+
 function displayPhotos() {
+
+    imagesLoadedCount = 0;
+    totalImages = photosArray.length
+
     photosArray.forEach((photo) => {
         // Create <a> to link to full photo
         const anchor_a = document.createElement('a');
@@ -30,6 +47,7 @@ function displayPhotos() {
             alt: photo.alt_description,
             title: photo.alt_description,
         })
+        img.addEventListener('load', imagesLoaded);
         anchor_a.appendChild(img);
         imageContainer.appendChild(anchor_a);
 
@@ -49,5 +67,20 @@ async function getPhotos() {
     }
 
 }
+
+
+// infinity scroll
+window.addEventListener('scroll', () => {
+
+    console.log("window.innerHeight", window.innerHeight);
+    console.log("window.scrollY", window.scrollY);
+    console.log(" document.body.offsetHeight", document.body.offsetHeight);
+
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000 && ready) {
+        ready = false;
+        getPhotos();
+    }
+});
+
 
 getPhotos()
